@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Context-Aware Task Switching Agent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-start: #4b2cff;
+            --bg-mid: #2f7cf6;
+            --bg-end: #0fd3ff;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-main: #f8fbff;
+            --text-muted: rgba(248, 251, 255, 0.72);
+            --shadow: 0 24px 60px rgba(10, 18, 58, 0.28);
+            --accent: #ffffff;
+            --accent-soft: rgba(255, 255, 255, 0.14);
+            --success: #8ef0c3;
+            --warning: #ffe28a;
+            --danger: #ff9ea8;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            overflow: hidden;
+            font-family: "Poppins", sans-serif;
+            color: var(--text-main);
+            background:
+                radial-gradient(circle at top left, rgba(255, 255, 255, 0.22), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.12), transparent 28%),
+                linear-gradient(135deg, var(--bg-start), var(--bg-mid) 48%, var(--bg-end));
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            border-radius: 999px;
+            filter: blur(12px);
+            pointer-events: none;
+        }
+
+        body::before {
+            width: 240px;
+            height: 240px;
+            top: 8%;
+            left: 8%;
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        body::after {
+            width: 320px;
+            height: 320px;
+            right: 6%;
+            bottom: 6%;
+            background: rgba(122, 230, 255, 0.2);
+        }
+
+        .card {
+            width: min(100%, 520px);
+            padding: 32px;
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.14), transparent 45%);
+            pointer-events: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .eyebrow {
+            margin: 0 0 8px;
+            font-size: 0.8rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: clamp(1.9rem, 3vw, 2.4rem);
+            line-height: 1.1;
+        }
+
+        .intro {
+            margin: 0 0 28px;
+            color: var(--text-muted);
+            font-size: 0.96rem;
+        }
+
+        form {
+            display: grid;
+            gap: 16px;
+        }
+
+        .field {
+            display: grid;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.92rem;
+            font-weight: 500;
+        }
+
+        input,
+        select {
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            border-radius: 16px;
+            padding: 14px 16px;
+            font: inherit;
+            outline: none;
+            transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+        }
+
+        input::placeholder {
+            color: rgba(248, 251, 255, 0.5);
+        }
+
+        input:focus,
+        select:focus {
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-1px);
+        }
+
+        select option {
+            color: #0d1733;
+        }
+
+        .button {
+            margin-top: 8px;
+            border: 0;
+            border-radius: 18px;
+            padding: 15px 20px;
+            font: inherit;
+            font-weight: 600;
+            color: #223;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(226, 242, 255, 0.82));
+            cursor: pointer;
+            box-shadow: 0 16px 30px rgba(8, 11, 37, 0.16);
+            transition: transform 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
+        }
+
+        .button:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 22px 40px rgba(8, 11, 37, 0.22);
+        }
+
+        .button:disabled {
+            opacity: 0.7;
+            cursor: wait;
+        }
+
+        .status,
+        .result {
+            margin-top: 22px;
+            border-radius: 18px;
+            padding: 16px 18px;
+            background: var(--accent-soft);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .status {
+            display: none;
+            color: var(--text-muted);
+        }
+
+        .status.active {
+            display: block;
+        }
+
+        .result {
+            display: none;
+        }
+
+        .result.active {
+            display: block;
+            animation: fadeUp 0.35s ease;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .result-title {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .badge.high {
+            color: var(--success);
+        }
+
+        .badge.medium {
+            color: var(--warning);
+        }
+
+        .badge.low {
+            color: var(--danger);
+        }
+
+        .recommendation {
+            margin: 0;
+            font-size: 1.12rem;
+            font-weight: 600;
+        }
+
+        .recommendation.high {
+            color: var(--success);
+        }
+
+        .recommendation.medium {
+            color: var(--warning);
+        }
+
+        .recommendation.low {
+            color: var(--danger);
+        }
+
+        .error {
+            color: #ffd7dd;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .card {
+                padding: 24px;
+                border-radius: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <div class="content">
+            <p class="eyebrow">Focus Intelligence</p>
+            <h1>Context-Aware Task Switching Agent</h1>
+            <p class="intro">Enter a few activity signals to predict focus level and receive a simple recommendation.</p>
+
+            <form id="focus-form">
+                <div class="field">
+                    <label for="time_spent">Time Spent (minutes)</label>
+                    <input id="time_spent" name="time_spent" type="number" min="0" placeholder="e.g. 60" required>
+                </div>
+
+                <div class="field">
+                    <label for="task_switch_count">Task Switch Count</label>
+                    <input id="task_switch_count" name="task_switch_count" type="number" min="0" placeholder="e.g. 2" required>
+                </div>
+
+                <div class="field">
+                    <label for="idle_time">Idle Time (minutes)</label>
+                    <input id="idle_time" name="idle_time" type="number" min="0" placeholder="e.g. 5" required>
+                </div>
+
+                <div class="field">
+                    <label for="task_difficulty">Task Difficulty</label>
+                    <select id="task_difficulty" name="task_difficulty" required>
+                        <option value="1">1 - Easy</option>
+                        <option value="2" selected>2 - Medium</option>
+                        <option value="3">3 - Hard</option>
+                    </select>
+                </div>
+
+                <button class="button" id="analyze-button" type="submit">Analyze Focus</button>
+            </form>
+
+            <div class="status" id="status-message"></div>
+
+            <section class="result" id="result-card" aria-live="polite">
+                <div class="result-header">
+                    <p class="result-title">Predicted Focus Level</p>
+                    <span class="badge" id="focus-badge">-</span>
+                </div>
+                <p class="recommendation" id="recommendation-text"></p>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const form = document.getElementById("focus-form");
+        const analyzeButton = document.getElementById("analyze-button");
+        const statusMessage = document.getElementById("status-message");
+        const resultCard = document.getElementById("result-card");
+        const focusBadge = document.getElementById("focus-badge");
+        const recommendationText = document.getElementById("recommendation-text");
+
+        function setLoadingState(isLoading) {
+            analyzeButton.disabled = isLoading;
+            analyzeButton.textContent = isLoading ? "Analyzing..." : "Analyze Focus";
+            statusMessage.className = isLoading ? "status active" : "status";
+            statusMessage.textContent = isLoading ? "Running focus analysis..." : "";
+        }
+
+        function showError(message) {
+            resultCard.className = "result active";
+            focusBadge.className = "badge";
+            focusBadge.textContent = "Error";
+            recommendationText.className = "recommendation error";
+            recommendationText.textContent = message;
+        }
+
+        function showResult(data) {
+            const focusLevel = data.focus_level;
+            const focusClass = focusLevel.toLowerCase();
+
+            resultCard.className = "result active";
+            focusBadge.className = `badge ${focusClass}`;
+            focusBadge.textContent = focusLevel;
+            recommendationText.className = `recommendation ${focusClass}`;
+            recommendationText.textContent = data.recommendation;
+        }
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            setLoadingState(true);
+
+            const payload = {
+                time_spent: Number(document.getElementById("time_spent").value),
+                task_switch_count: Number(document.getElementById("task_switch_count").value),
+                idle_time: Number(document.getElementById("idle_time").value),
+                task_difficulty: Number(document.getElementById("task_difficulty").value)
+            };
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/decision", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error || "Unable to analyze focus right now.");
+                }
+
+                showResult(result.data);
+            } catch (error) {
+                showError(error.message || "Something went wrong while contacting the server.");
+            } finally {
+                setLoadingState(false);
+            }
+        });
+    </script>
+</body>
+</html>
