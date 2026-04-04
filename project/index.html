@@ -114,6 +114,71 @@
             font-size: 0.96rem;
         }
 
+        .panel {
+            margin-bottom: 22px;
+            padding: 18px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .panel-title,
+        .mini-label {
+            margin: 0;
+            color: var(--text-muted);
+        }
+
+        .monitor-badge {
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            color: var(--success);
+            background: rgba(142, 240, 195, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .mini-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .mini-card {
+            padding: 14px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .mini-value {
+            margin: 6px 0 0;
+            font-weight: 600;
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 14px;
+            color: var(--text-muted);
+            font-size: 0.92rem;
+        }
+
+        .toggle-row input {
+            width: auto;
+            margin: 0;
+        }
+
         form {
             display: grid;
             gap: 16px;
@@ -262,6 +327,16 @@
             color: var(--danger);
         }
 
+        .result-copy {
+            margin: 12px 0 0;
+            line-height: 1.55;
+        }
+
+        .result-copy strong {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
         .error {
             color: #ffd7dd;
         }
@@ -282,6 +357,16 @@
                 padding: 24px;
                 border-radius: 24px;
             }
+
+            .panel-header,
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .mini-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -290,7 +375,38 @@
         <div class="content">
             <p class="eyebrow">Focus Intelligence</p>
             <h1>Context-Aware Task Switching Agent</h1>
-            <p class="intro">Enter a few activity signals to predict focus level and receive a simple recommendation.</p>
+            <p class="intro">Manual input still works, but the interface can now monitor activity signals and trigger analysis automatically.</p>
+
+            <section class="panel">
+                <div class="panel-header">
+                    <p class="panel-title">Semi-Autonomous Monitoring</p>
+                    <span class="monitor-badge" id="monitor-status">Monitoring Active</span>
+                </div>
+
+                <div class="mini-grid">
+                    <div class="mini-card">
+                        <p class="mini-label">Tracked Time</p>
+                        <p class="mini-value" id="tracked-time">0 min</p>
+                    </div>
+                    <div class="mini-card">
+                        <p class="mini-label">Idle Time</p>
+                        <p class="mini-value" id="tracked-idle">0 min</p>
+                    </div>
+                    <div class="mini-card">
+                        <p class="mini-label">Task Switches</p>
+                        <p class="mini-value" id="tracked-switches">0</p>
+                    </div>
+                    <div class="mini-card">
+                        <p class="mini-label">Last Analyzed</p>
+                        <p class="mini-value" id="last-analyzed">Not yet</p>
+                    </div>
+                </div>
+
+                <label class="toggle-row" for="use-live-data">
+                    <input id="use-live-data" type="checkbox" checked>
+                    Use live monitoring data for automatic and manual analysis
+                </label>
+            </section>
 
             <form id="focus-form">
                 <div class="field">
@@ -328,6 +444,9 @@
                     <span class="badge" id="focus-badge">-</span>
                 </div>
                 <p class="recommendation" id="recommendation-text"></p>
+                <p class="result-copy" id="reason-text"></p>
+                <p class="result-copy" id="llm-text"></p>
+                <p class="result-copy" id="confidence-text"></p>
             </section>
         </div>
     </main>
@@ -339,12 +458,113 @@
         const resultCard = document.getElementById("result-card");
         const focusBadge = document.getElementById("focus-badge");
         const recommendationText = document.getElementById("recommendation-text");
+        const reasonText = document.getElementById("reason-text");
+        const llmText = document.getElementById("llm-text");
+        const confidenceText = document.getElementById("confidence-text");
+        const trackedTime = document.getElementById("tracked-time");
+        const trackedIdle = document.getElementById("tracked-idle");
+        const trackedSwitches = document.getElementById("tracked-switches");
+        const lastAnalyzed = document.getElementById("last-analyzed");
+        const useLiveData = document.getElementById("use-live-data");
+        const monitorStatus = document.getElementById("monitor-status");
 
-        function setLoadingState(isLoading) {
+        const analysisIntervalMs = 45000;
+        const idleThresholdMs = 5000;
+        const switchThresholdMs = 5000;
+        const sessionStartMs = Date.now();
+
+        let lastActivityMs = Date.now();
+        let idleStartedMs = null;
+        let accumulatedIdleMs = 0;
+        let taskSwitchCount = 0;
+        let awayStartedMs = null;
+        let isAway = false;
+        let lastAnalyzedAtMs = null;
+        let autoRequestInFlight = false;
+
+        function roundMinutes(milliseconds) {
+            return Math.round((milliseconds / 60000) * 10) / 10;
+        }
+
+        function getTrackedMetrics() {
+            const now = Date.now();
+            const liveIdleMs = idleStartedMs ? now - idleStartedMs : 0;
+
+            return {
+                time_spent: Math.max(0, roundMinutes(now - sessionStartMs)),
+                task_switch_count: taskSwitchCount,
+                idle_time: Math.max(0, roundMinutes(accumulatedIdleMs + liveIdleMs))
+            };
+        }
+
+        function syncTrackedDisplay() {
+            const metrics = getTrackedMetrics();
+            trackedTime.textContent = `${metrics.time_spent} min`;
+            trackedIdle.textContent = `${metrics.idle_time} min`;
+            trackedSwitches.textContent = String(metrics.task_switch_count);
+
+            if (useLiveData.checked) {
+                document.getElementById("time_spent").value = metrics.time_spent;
+                document.getElementById("task_switch_count").value = metrics.task_switch_count;
+                document.getElementById("idle_time").value = metrics.idle_time;
+            }
+        }
+
+        function updateLastAnalyzed() {
+            if (!lastAnalyzedAtMs) {
+                lastAnalyzed.textContent = "Not yet";
+                return;
+            }
+
+            const secondsAgo = Math.max(0, Math.floor((Date.now() - lastAnalyzedAtMs) / 1000));
+            lastAnalyzed.textContent = `${secondsAgo}s ago`;
+        }
+
+        function beginIdleIfNeeded() {
+            if (!idleStartedMs && Date.now() - lastActivityMs >= idleThresholdMs) {
+                idleStartedMs = lastActivityMs + idleThresholdMs;
+            }
+        }
+
+        function registerActivity() {
+            const now = Date.now();
+
+            if (idleStartedMs) {
+                accumulatedIdleMs += now - idleStartedMs;
+                idleStartedMs = null;
+            }
+
+            lastActivityMs = now;
+            syncTrackedDisplay();
+        }
+
+        function markAway() {
+            if (!isAway) {
+                isAway = true;
+                awayStartedMs = Date.now();
+            }
+        }
+
+        function markReturn() {
+            if (!isAway) {
+                return;
+            }
+
+            const awayDurationMs = Date.now() - awayStartedMs;
+            if (awayDurationMs >= switchThresholdMs) {
+                taskSwitchCount += 1;
+            }
+
+            isAway = false;
+            awayStartedMs = null;
+            registerActivity();
+        }
+
+        function setLoadingState(isLoading, label = "Running focus analysis...") {
             analyzeButton.disabled = isLoading;
             analyzeButton.textContent = isLoading ? "Analyzing..." : "Analyze Focus";
             statusMessage.className = isLoading ? "status active" : "status";
-            statusMessage.textContent = isLoading ? "Running focus analysis..." : "";
+            statusMessage.textContent = isLoading ? label : "";
         }
 
         function showError(message) {
@@ -353,6 +573,9 @@
             focusBadge.textContent = "Error";
             recommendationText.className = "recommendation error";
             recommendationText.textContent = message;
+            reasonText.textContent = "";
+            llmText.textContent = "";
+            confidenceText.textContent = "";
         }
 
         function showResult(data) {
@@ -364,18 +587,26 @@
             focusBadge.textContent = focusLevel;
             recommendationText.className = `recommendation ${focusClass}`;
             recommendationText.textContent = data.recommendation;
+            reasonText.innerHTML = `<strong>Reason:</strong> ${data.reason || "No explanation available."}`;
+            llmText.innerHTML = `<strong>AI Suggestion:</strong> ${data.llm_suggestion || "Suggestion unavailable"}`;
+            confidenceText.innerHTML = `<strong>Confidence:</strong> ${data.confidence ?? "N/A"}`;
+            lastAnalyzedAtMs = Date.now();
+            updateLastAnalyzed();
         }
 
-        form.addEventListener("submit", async (event) => {
-            event.preventDefault();
-            setLoadingState(true);
+        async function sendAnalysis(payload, { automatic = false } = {}) {
+            if (automatic && autoRequestInFlight) {
+                return;
+            }
 
-            const payload = {
-                time_spent: Number(document.getElementById("time_spent").value),
-                task_switch_count: Number(document.getElementById("task_switch_count").value),
-                idle_time: Number(document.getElementById("idle_time").value),
-                task_difficulty: Number(document.getElementById("task_difficulty").value)
-            };
+            if (automatic) {
+                autoRequestInFlight = true;
+            }
+
+            setLoadingState(
+                true,
+                automatic ? "Monitoring behavior and generating analysis..." : "Running focus analysis..."
+            );
 
             try {
                 const response = await fetch("http://127.0.0.1:5000/decision", {
@@ -387,7 +618,6 @@
                 });
 
                 const result = await response.json();
-
                 if (!response.ok || !result.success) {
                     throw new Error(result.error || "Unable to analyze focus right now.");
                 }
@@ -397,8 +627,68 @@
                 showError(error.message || "Something went wrong while contacting the server.");
             } finally {
                 setLoadingState(false);
+                monitorStatus.textContent = useLiveData.checked ? "Monitoring Active" : "Manual Mode";
+                autoRequestInFlight = false;
+            }
+        }
+
+        function buildPayload() {
+            const trackedMetrics = getTrackedMetrics();
+
+            return {
+                time_spent: useLiveData.checked ? trackedMetrics.time_spent : Number(document.getElementById("time_spent").value),
+                task_switch_count: useLiveData.checked ? trackedMetrics.task_switch_count : Number(document.getElementById("task_switch_count").value),
+                idle_time: useLiveData.checked ? trackedMetrics.idle_time : Number(document.getElementById("idle_time").value),
+                task_difficulty: Number(document.getElementById("task_difficulty").value)
+            };
+        }
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            await sendAnalysis(buildPayload());
+        });
+
+        useLiveData.addEventListener("change", () => {
+            const isLiveMode = useLiveData.checked;
+            monitorStatus.textContent = isLiveMode ? "Monitoring Active" : "Manual Mode";
+            document.getElementById("time_spent").readOnly = isLiveMode;
+            document.getElementById("task_switch_count").readOnly = isLiveMode;
+            document.getElementById("idle_time").readOnly = isLiveMode;
+            syncTrackedDisplay();
+        });
+
+        ["mousemove", "keydown", "mousedown", "touchstart"].forEach((eventName) => {
+            window.addEventListener(eventName, registerActivity, { passive: true });
+        });
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+                markAway();
+            } else {
+                markReturn();
             }
         });
+
+        window.addEventListener("blur", markAway);
+        window.addEventListener("focus", markReturn);
+
+        window.setInterval(() => {
+            beginIdleIfNeeded();
+            syncTrackedDisplay();
+            updateLastAnalyzed();
+        }, 1000);
+
+        window.setInterval(() => {
+            if (!useLiveData.checked) {
+                return;
+            }
+
+            sendAnalysis(buildPayload(), { automatic: true });
+        }, analysisIntervalMs);
+
+        useLiveData.dispatchEvent(new Event("change"));
+        syncTrackedDisplay();
+        updateLastAnalyzed();
     </script>
 </body>
 </html>

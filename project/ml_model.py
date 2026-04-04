@@ -99,14 +99,28 @@ def train_and_save_model():
     return model
 
 
-def predict_focus(input_data):
+def get_prediction_details(input_data):
     if not MODEL_PATH.exists():
         train_and_save_model()
 
     model = load_model()
     feature_values = [input_data[feature] for feature in FEATURE_NAMES]
     prediction = model.predict([feature_values])[0]
-    return str(prediction)
+    confidence = float(max(model.predict_proba([feature_values])[0]))
+
+    return {
+        "focus_level": str(prediction),
+        "confidence": round(confidence, 2),
+    }
+
+
+def predict_focus_with_confidence(input_data):
+    details = get_prediction_details(input_data)
+    return details["focus_level"], details["confidence"]
+
+
+def predict_focus(input_data):
+    return get_prediction_details(input_data)["focus_level"]
 
 
 if __name__ == "__main__":
