@@ -98,13 +98,18 @@ def generate_agent_response(context):
             {
                 "role": "system",
                 "content": (
-                    "You are a concise productivity coach. Use the available tools before answering. "
-                    "Return a short, practical suggestion in one or two sentences."
+                    "You are a productivity coach. Use the available tools before answering. "
+                    "Briefly explain the situation, then give one specific actionable suggestion. "
+                    "Keep the response under two sentences. Adapt tone to the user's trend, session state, "
+                    "and optional user_type when provided."
                 ),
             },
             {
                 "role": "user",
-                "content": "Generate a helpful suggestion for this context:\n" + json.dumps(context),
+                "content": (
+                    "Generate a concise coaching suggestion using this structured context:\n"
+                    + json.dumps(context)
+                ),
             },
         ]
 

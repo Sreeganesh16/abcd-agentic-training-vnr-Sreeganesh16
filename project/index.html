@@ -337,6 +337,17 @@
             font-weight: 600;
         }
 
+        .note {
+            color: #ffd9a1;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+
         .error {
             color: #ffd7dd;
         }
@@ -365,6 +376,10 @@
             }
 
             .mini-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -447,6 +462,27 @@
                 <p class="result-copy" id="reason-text"></p>
                 <p class="result-copy" id="llm-text"></p>
                 <p class="result-copy" id="confidence-text"></p>
+                <p class="result-copy note" id="confidence-note-text"></p>
+                <p class="result-copy" id="trend-text"></p>
+                <p class="result-copy" id="session-insight-text"></p>
+                <div class="summary-grid">
+                    <div class="mini-card">
+                        <p class="mini-label">Avg Focus Score</p>
+                        <p class="mini-value" id="summary-score">-</p>
+                    </div>
+                    <div class="mini-card">
+                        <p class="mini-label">Total Idle</p>
+                        <p class="mini-value" id="summary-idle">-</p>
+                    </div>
+                    <div class="mini-card">
+                        <p class="mini-label">Total Switches</p>
+                        <p class="mini-value" id="summary-switches">-</p>
+                    </div>
+                    <div class="mini-card">
+                        <p class="mini-label">Total Time</p>
+                        <p class="mini-value" id="summary-time">-</p>
+                    </div>
+                </div>
             </section>
         </div>
     </main>
@@ -461,6 +497,13 @@
         const reasonText = document.getElementById("reason-text");
         const llmText = document.getElementById("llm-text");
         const confidenceText = document.getElementById("confidence-text");
+        const confidenceNoteText = document.getElementById("confidence-note-text");
+        const trendText = document.getElementById("trend-text");
+        const sessionInsightText = document.getElementById("session-insight-text");
+        const summaryScore = document.getElementById("summary-score");
+        const summaryIdle = document.getElementById("summary-idle");
+        const summarySwitches = document.getElementById("summary-switches");
+        const summaryTime = document.getElementById("summary-time");
         const trackedTime = document.getElementById("tracked-time");
         const trackedIdle = document.getElementById("tracked-idle");
         const trackedSwitches = document.getElementById("tracked-switches");
@@ -576,6 +619,13 @@
             reasonText.textContent = "";
             llmText.textContent = "";
             confidenceText.textContent = "";
+            confidenceNoteText.textContent = "";
+            trendText.textContent = "";
+            sessionInsightText.textContent = "";
+            summaryScore.textContent = "-";
+            summaryIdle.textContent = "-";
+            summarySwitches.textContent = "-";
+            summaryTime.textContent = "-";
         }
 
         function showResult(data) {
@@ -589,7 +639,16 @@
             recommendationText.textContent = data.recommendation;
             reasonText.innerHTML = `<strong>Reason:</strong> ${data.reason || "No explanation available."}`;
             llmText.innerHTML = `<strong>AI Suggestion:</strong> ${data.llm_suggestion || "Suggestion unavailable"}`;
-            confidenceText.innerHTML = `<strong>Confidence:</strong> ${data.confidence ?? "N/A"}`;
+            confidenceText.innerHTML = `<strong>Confidence:</strong> ${Math.round((data.confidence ?? 0) * 100)}%`;
+            confidenceNoteText.innerHTML = data.confidence_note
+                ? `<strong>Confidence Note:</strong> ${data.confidence_note}`
+                : "";
+            trendText.innerHTML = `<strong>Trend:</strong> Focus ${(data.trend || "Stable").toLowerCase()}`;
+            sessionInsightText.innerHTML = `<strong>Session Insight:</strong> ${data.session_insight || ""}`;
+            summaryScore.textContent = data.session_summary?.average_focus_score ?? "-";
+            summaryIdle.textContent = data.session_summary ? `${data.session_summary.total_idle} min` : "-";
+            summarySwitches.textContent = data.session_summary?.total_switches ?? "-";
+            summaryTime.textContent = trackedTime.textContent;
             lastAnalyzedAtMs = Date.now();
             updateLastAnalyzed();
         }
@@ -609,7 +668,7 @@
             );
 
             try {
-                const response = await fetch("http://127.0.0.1:5000/decision", {
+                const response = await fetch("http://127.0.0.1:5001/decision", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
