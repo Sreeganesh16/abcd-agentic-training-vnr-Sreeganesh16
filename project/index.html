@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-start: #4b2cff;
@@ -383,6 +384,463 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        body {
+            display: block;
+            padding: 28px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background:
+                linear-gradient(rgba(9, 17, 43, 0.72), rgba(9, 17, 43, 0.72)),
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(255, 255, 255, 0.04) 0,
+                    rgba(255, 255, 255, 0.04) 1px,
+                    transparent 1px,
+                    transparent 24px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(255, 255, 255, 0.035) 0,
+                    rgba(255, 255, 255, 0.035) 1px,
+                    transparent 1px,
+                    transparent 24px
+                ),
+                radial-gradient(circle at 20% 20%, rgba(111, 87, 255, 0.42), transparent 26%),
+                radial-gradient(circle at 82% 16%, rgba(26, 224, 255, 0.22), transparent 22%),
+                linear-gradient(135deg, #130f33, #173d88 48%, #08a9e6);
+        }
+
+        body::before {
+            width: 360px;
+            height: 360px;
+            top: -4%;
+            left: -4%;
+            filter: blur(28px);
+            background: rgba(110, 74, 255, 0.24);
+        }
+
+        body::after {
+            width: 420px;
+            height: 420px;
+            right: -6%;
+            bottom: -8%;
+            filter: blur(32px);
+            background: rgba(0, 227, 255, 0.16);
+        }
+
+        body::selection {
+            background: rgba(119, 233, 255, 0.28);
+        }
+
+        .card {
+            width: min(100%, 1240px);
+            margin: 0 auto;
+            padding: 28px;
+            border-radius: 0;
+            border: 3px solid rgba(106, 227, 255, 0.42);
+            background:
+                linear-gradient(180deg, rgba(14, 23, 58, 0.92), rgba(10, 18, 42, 0.95)),
+                rgba(14, 23, 58, 0.92);
+            box-shadow:
+                0 0 0 2px rgba(9, 255, 255, 0.12),
+                0 24px 80px rgba(3, 8, 25, 0.52),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+
+        .card::before {
+            background:
+                linear-gradient(90deg, rgba(0, 255, 251, 0.06), transparent 28%, transparent 72%, rgba(255, 89, 201, 0.06)),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 18%);
+        }
+
+        .card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                repeating-linear-gradient(
+                    180deg,
+                    rgba(255, 255, 255, 0.035) 0,
+                    rgba(255, 255, 255, 0.035) 2px,
+                    transparent 2px,
+                    transparent 6px
+                );
+            mix-blend-mode: soft-light;
+            opacity: 0.22;
+        }
+
+        .content {
+            display: grid;
+            gap: 20px;
+        }
+
+        .eyebrow {
+            font-family: "Press Start 2P", monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.16em;
+            color: #88f7ff;
+            text-shadow: 0 0 12px rgba(136, 247, 255, 0.35);
+        }
+
+        h1 {
+            max-width: 850px;
+            margin: 0;
+            font-family: "Press Start 2P", monospace;
+            font-size: clamp(1.7rem, 3vw, 2.9rem);
+            line-height: 1.25;
+            color: #f7fbff;
+            text-shadow: 0 0 18px rgba(108, 211, 255, 0.25);
+        }
+
+        .intro {
+            max-width: 760px;
+            margin: 0;
+            font-size: 1.15rem;
+            color: rgba(227, 239, 255, 0.82);
+        }
+
+        .status-strip {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .strip-item {
+            padding: 14px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            background: linear-gradient(180deg, rgba(25, 40, 96, 0.88), rgba(12, 22, 56, 0.95));
+            box-shadow: inset 0 0 0 1px rgba(104, 230, 255, 0.08);
+        }
+
+        .strip-label {
+            margin: 0 0 8px;
+            font-family: "Press Start 2P", monospace;
+            font-size: 0.62rem;
+            line-height: 1.5;
+            color: #7cdcff;
+        }
+
+        .strip-value {
+            margin: 0;
+            font-family: "VT323", monospace;
+            font-size: 1.8rem;
+            color: #f6fbff;
+        }
+
+        .meter-shell {
+            margin-top: 10px;
+            height: 14px;
+            border: 2px solid rgba(117, 235, 255, 0.25);
+            background: rgba(6, 12, 31, 0.82);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+
+        .meter-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff5fcf, #8a75ff 46%, #41e5ff);
+            box-shadow: 0 0 14px rgba(65, 229, 255, 0.32);
+            transition: width 0.3s ease;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: minmax(320px, 0.95fr) minmax(360px, 1.15fr);
+            gap: 18px;
+            align-items: start;
+        }
+
+        .stack {
+            display: grid;
+            gap: 18px;
+        }
+
+        .panel,
+        .result {
+            margin-top: 0;
+            padding: 18px;
+            border-radius: 0;
+            border: 2px solid rgba(107, 229, 255, 0.18);
+            background:
+                linear-gradient(180deg, rgba(22, 35, 88, 0.88), rgba(10, 18, 44, 0.95)),
+                rgba(255, 255, 255, 0.05);
+            box-shadow:
+                inset 0 0 0 1px rgba(255, 255, 255, 0.03),
+                0 16px 30px rgba(0, 0, 0, 0.22);
+        }
+
+        .panel-header,
+        .result-header {
+            margin-bottom: 16px;
+        }
+
+        .panel-title,
+        .result-title,
+        .mini-label,
+        label {
+            font-family: "Press Start 2P", monospace;
+            font-size: 0.68rem;
+            line-height: 1.7;
+            color: #94ecff;
+        }
+
+        .monitor-badge,
+        .badge {
+            border-radius: 0;
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            background: linear-gradient(180deg, rgba(31, 59, 139, 0.9), rgba(16, 31, 76, 0.95));
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+        }
+
+        .monitor-badge {
+            color: #9dffb8;
+            text-shadow: 0 0 10px rgba(157, 255, 184, 0.28);
+        }
+
+        .mini-card {
+            border-radius: 0;
+            border: 2px solid rgba(255, 255, 255, 0.07);
+            background: linear-gradient(180deg, rgba(29, 48, 118, 0.74), rgba(12, 20, 52, 0.92));
+        }
+
+        .mini-value {
+            font-family: "VT323", monospace;
+            font-size: 2rem;
+            color: #ffffff;
+        }
+
+        .toggle-row {
+            padding: 12px 14px;
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .control-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .icon-button {
+            width: 58px;
+            min-width: 58px;
+            padding: 14px 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        input,
+        select {
+            border-radius: 0;
+            border: 2px solid rgba(120, 236, 255, 0.2);
+            background: rgba(8, 16, 42, 0.72);
+            color: #f5fbff;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+        }
+
+        input::placeholder {
+            color: rgba(207, 227, 255, 0.46);
+        }
+
+        input:focus,
+        select:focus {
+            border-color: rgba(110, 239, 255, 0.8);
+            box-shadow:
+                0 0 0 3px rgba(69, 229, 255, 0.12),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .button {
+            border-radius: 0;
+            padding: 18px 20px;
+            font-family: "Press Start 2P", monospace;
+            font-size: 0.74rem;
+            line-height: 1.5;
+            letter-spacing: 0.05em;
+            color: #f5fbff;
+            background:
+                linear-gradient(90deg, #ff5fcf, #7c6dff 45%, #32d5ff);
+            box-shadow:
+                0 0 0 2px rgba(255, 255, 255, 0.08),
+                0 16px 24px rgba(11, 6, 41, 0.34);
+        }
+
+        .button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow:
+                0 0 0 2px rgba(255, 255, 255, 0.1),
+                0 20px 34px rgba(11, 6, 41, 0.42);
+        }
+
+        .button.secondary {
+            background: linear-gradient(90deg, #1f3c96, #284ab8 45%, #2f62da);
+        }
+
+        .status {
+            border-radius: 0;
+            border: 2px solid rgba(255, 214, 114, 0.22);
+            background: rgba(255, 189, 89, 0.08);
+        }
+
+        .result-copy,
+        .intro,
+        .toggle-row {
+            font-size: 1.05rem;
+        }
+
+        .recommendation {
+            font-family: "VT323", monospace;
+            font-size: 2.05rem;
+            letter-spacing: 0.02em;
+        }
+
+        .summary-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .hud-block {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 2px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(10, minmax(0, 1fr));
+            gap: 8px;
+            align-items: end;
+            min-height: 120px;
+            margin-top: 14px;
+        }
+
+        .telemetry-panel {
+            margin-top: 14px;
+            padding: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            background: linear-gradient(180deg, rgba(18, 30, 78, 0.84), rgba(8, 14, 34, 0.96));
+        }
+
+        .telemetry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .telemetry-legend {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-family: "Press Start 2P", monospace;
+            font-size: 0.52rem;
+            line-height: 1.5;
+            color: #d8f6ff;
+        }
+
+        .legend-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            display: inline-block;
+        }
+
+        .legend-dot.score {
+            background: #41e5ff;
+        }
+
+        .legend-dot.switches {
+            background: #ff5fcf;
+        }
+
+        .legend-dot.idle {
+            background: #ffd26a;
+        }
+
+        .telemetry-canvas {
+            width: 100%;
+            height: 210px;
+            display: block;
+            border: 2px solid rgba(119, 235, 255, 0.16);
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 28%),
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(255, 255, 255, 0.04) 0,
+                    rgba(255, 255, 255, 0.04) 1px,
+                    transparent 1px,
+                    transparent 28px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(255, 255, 255, 0.03) 0,
+                    rgba(255, 255, 255, 0.03) 1px,
+                    transparent 1px,
+                    transparent 42px
+                ),
+                rgba(4, 10, 28, 0.95);
+        }
+
+        .history-bar {
+            min-height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.06);
+            background: linear-gradient(180deg, rgba(44, 99, 199, 0.7), rgba(16, 30, 74, 0.94));
+        }
+
+        .history-bar.low {
+            background: linear-gradient(180deg, rgba(255, 91, 154, 0.82), rgba(96, 20, 64, 0.95));
+        }
+
+        .history-bar.medium {
+            background: linear-gradient(180deg, rgba(255, 210, 106, 0.84), rgba(93, 63, 16, 0.95));
+        }
+
+        .history-bar.high {
+            background: linear-gradient(180deg, rgba(76, 245, 184, 0.84), rgba(14, 88, 63, 0.95));
+        }
+
+        .popup-overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(5, 10, 24, 0.72);
+            backdrop-filter: blur(8px);
+            z-index: 50;
+        }
+
+        .popup-overlay.active {
+            display: flex;
+        }
+
+        .popup-card {
+            width: min(100%, 680px);
+            border: 3px solid rgba(105, 231, 255, 0.4);
+            background: linear-gradient(180deg, rgba(16, 25, 63, 0.96), rgba(10, 17, 43, 0.98));
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+            padding: 22px;
+        }
+
+        @media (max-width: 980px) {
+            .status-strip,
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -390,106 +848,181 @@
         <div class="content">
             <p class="eyebrow">Focus Intelligence</p>
             <h1>Context-Aware Task Switching Agent</h1>
-            <p class="intro">Manual input still works, but the interface can now monitor activity signals and trigger analysis automatically.</p>
+            <p class="intro">A pixel-hud dashboard for live focus telemetry, hybrid reasoning, and AI coaching. Manual controls still work whenever you want to test scenarios directly.</p>
 
-            <section class="panel">
-                <div class="panel-header">
-                    <p class="panel-title">Semi-Autonomous Monitoring</p>
-                    <span class="monitor-badge" id="monitor-status">Monitoring Active</span>
+            <section class="status-strip">
+                <div class="strip-item">
+                    <p class="strip-label">Live Mode</p>
+                    <p class="strip-value" id="hero-mode">AUTO</p>
                 </div>
-
-                <div class="mini-grid">
-                    <div class="mini-card">
-                        <p class="mini-label">Tracked Time</p>
-                        <p class="mini-value" id="tracked-time">0 min</p>
-                    </div>
-                    <div class="mini-card">
-                        <p class="mini-label">Idle Time</p>
-                        <p class="mini-value" id="tracked-idle">0 min</p>
-                    </div>
-                    <div class="mini-card">
-                        <p class="mini-label">Task Switches</p>
-                        <p class="mini-value" id="tracked-switches">0</p>
-                    </div>
-                    <div class="mini-card">
-                        <p class="mini-label">Last Analyzed</p>
-                        <p class="mini-value" id="last-analyzed">Not yet</p>
-                    </div>
+                <div class="strip-item">
+                    <p class="strip-label">Signal Quality</p>
+                    <p class="strip-value" id="hero-confidence">--%</p>
                 </div>
-
-                <label class="toggle-row" for="use-live-data">
-                    <input id="use-live-data" type="checkbox" checked>
-                    Use live monitoring data for automatic and manual analysis
-                </label>
-            </section>
-
-            <form id="focus-form">
-                <div class="field">
-                    <label for="time_spent">Time Spent (minutes)</label>
-                    <input id="time_spent" name="time_spent" type="number" min="0" placeholder="e.g. 60" required>
-                </div>
-
-                <div class="field">
-                    <label for="task_switch_count">Task Switch Count</label>
-                    <input id="task_switch_count" name="task_switch_count" type="number" min="0" placeholder="e.g. 2" required>
-                </div>
-
-                <div class="field">
-                    <label for="idle_time">Idle Time (minutes)</label>
-                    <input id="idle_time" name="idle_time" type="number" min="0" placeholder="e.g. 5" required>
-                </div>
-
-                <div class="field">
-                    <label for="task_difficulty">Task Difficulty</label>
-                    <select id="task_difficulty" name="task_difficulty" required>
-                        <option value="1">1 - Easy</option>
-                        <option value="2" selected>2 - Medium</option>
-                        <option value="3">3 - Hard</option>
-                    </select>
-                </div>
-
-                <button class="button" id="analyze-button" type="submit">Analyze Focus</button>
-            </form>
-
-            <div class="status" id="status-message"></div>
-
-            <section class="result" id="result-card" aria-live="polite">
-                <div class="result-header">
-                    <p class="result-title">Predicted Focus Level</p>
-                    <span class="badge" id="focus-badge">-</span>
-                </div>
-                <p class="recommendation" id="recommendation-text"></p>
-                <p class="result-copy" id="reason-text"></p>
-                <p class="result-copy" id="llm-text"></p>
-                <p class="result-copy" id="confidence-text"></p>
-                <p class="result-copy note" id="confidence-note-text"></p>
-                <p class="result-copy" id="trend-text"></p>
-                <p class="result-copy" id="session-insight-text"></p>
-                <div class="summary-grid">
-                    <div class="mini-card">
-                        <p class="mini-label">Avg Focus Score</p>
-                        <p class="mini-value" id="summary-score">-</p>
-                    </div>
-                    <div class="mini-card">
-                        <p class="mini-label">Total Idle</p>
-                        <p class="mini-value" id="summary-idle">-</p>
-                    </div>
-                    <div class="mini-card">
-                        <p class="mini-label">Total Switches</p>
-                        <p class="mini-value" id="summary-switches">-</p>
-                    </div>
-                    <div class="mini-card">
-                        <p class="mini-label">Total Time</p>
-                        <p class="mini-value" id="summary-time">-</p>
-                    </div>
+                <div class="strip-item">
+                    <p class="strip-label">Trend State</p>
+                    <p class="strip-value" id="hero-trend">STABLE</p>
                 </div>
             </section>
+
+            <div class="dashboard-grid">
+                <div class="stack">
+                    <section class="panel">
+                        <div class="panel-header">
+                            <p class="panel-title">Semi-Autonomous Monitoring</p>
+                            <span class="monitor-badge" id="monitor-status">Monitoring Active</span>
+                        </div>
+
+                        <div class="mini-grid">
+                            <div class="mini-card">
+                                <p class="mini-label">Tracked Time</p>
+                                <p class="mini-value" id="tracked-time">0 min</p>
+                            </div>
+                            <div class="mini-card">
+                                <p class="mini-label">Idle Time</p>
+                                <p class="mini-value" id="tracked-idle">0 min</p>
+                            </div>
+                            <div class="mini-card">
+                                <p class="mini-label">Task Switches</p>
+                                <p class="mini-value" id="tracked-switches">0</p>
+                            </div>
+                            <div class="mini-card">
+                                <p class="mini-label">Last Analyzed</p>
+                                <p class="mini-value" id="last-analyzed">Not yet</p>
+                            </div>
+                        </div>
+
+                        <label class="toggle-row" for="use-live-data">
+                            <input id="use-live-data" type="checkbox" checked>
+                            Use live monitoring data for automatic and manual analysis
+                        </label>
+
+                        <div class="control-row">
+                            <button class="button secondary" id="start-monitoring-button" type="button">Start Monitoring</button>
+                            <button class="button secondary" id="stop-monitoring-button" type="button">Stop Monitoring</button>
+                            <button class="button secondary icon-button" id="reset-session-button" type="button" title="Reset Session" aria-label="Reset Session">⟲</button>
+                        </div>
+                    </section>
+
+                    <section class="panel">
+                        <div class="panel-header">
+                            <p class="panel-title">Manual Override Console</p>
+                            <span class="monitor-badge">TEST INPUT</span>
+                        </div>
+
+                        <form id="focus-form">
+                            <div class="field">
+                                <label for="time_spent">Time Spent (minutes)</label>
+                                <input id="time_spent" name="time_spent" type="number" min="0" placeholder="e.g. 60" required>
+                            </div>
+
+                            <div class="field">
+                                <label for="task_switch_count">Task Switch Count</label>
+                                <input id="task_switch_count" name="task_switch_count" type="number" min="0" placeholder="e.g. 2" required>
+                            </div>
+
+                            <div class="field">
+                                <label for="idle_time">Idle Time (minutes)</label>
+                                <input id="idle_time" name="idle_time" type="number" min="0" placeholder="e.g. 5" required>
+                            </div>
+
+                            <div class="field">
+                                <label for="task_difficulty">Task Difficulty</label>
+                                <select id="task_difficulty" name="task_difficulty" required>
+                                    <option value="1">1 - Easy</option>
+                                    <option value="2" selected>2 - Medium</option>
+                                    <option value="3">3 - Hard</option>
+                                </select>
+                            </div>
+
+                            <button class="button" id="analyze-button" type="submit">Analyze Focus</button>
+                        </form>
+                    </section>
+
+                    <div class="status" id="status-message"></div>
+                </div>
+
+                <section class="result" id="result-card" aria-live="polite">
+                    <div class="result-header">
+                        <p class="result-title">Predicted Focus Level</p>
+                        <span class="badge" id="focus-badge">-</span>
+                    </div>
+                    <div class="hud-block">
+                        <p class="panel-title">Focus Meter</p>
+                        <div class="meter-shell">
+                            <div class="meter-fill" id="focus-meter"></div>
+                        </div>
+                    </div>
+                    <p class="recommendation" id="recommendation-text"></p>
+                    <p class="result-copy" id="reason-text"></p>
+                    <p class="result-copy" id="llm-text"></p>
+                    <p class="result-copy" id="confidence-text"></p>
+                    <p class="result-copy note" id="confidence-note-text"></p>
+                    <p class="result-copy" id="trend-text"></p>
+                    <p class="result-copy" id="session-insight-text"></p>
+                    <div class="hud-block">
+                        <p class="panel-title">Recent Focus History</p>
+                        <div class="history-grid" id="history-grid"></div>
+                    </div>
+                    <div class="telemetry-panel">
+                        <div class="telemetry-header">
+                            <p class="panel-title">Live Telemetry Graph</p>
+                            <div class="telemetry-legend">
+                                <span class="legend-chip"><span class="legend-dot score"></span>Focus Score</span>
+                                <span class="legend-chip"><span class="legend-dot switches"></span>Switches</span>
+                                <span class="legend-chip"><span class="legend-dot idle"></span>Idle</span>
+                            </div>
+                        </div>
+                        <canvas class="telemetry-canvas" id="telemetry-canvas" width="760" height="210"></canvas>
+                    </div>
+                    <div class="summary-grid">
+                        <div class="mini-card">
+                            <p class="mini-label">Avg Focus Score</p>
+                            <p class="mini-value" id="summary-score">-</p>
+                        </div>
+                        <div class="mini-card">
+                            <p class="mini-label">Total Idle</p>
+                            <p class="mini-value" id="summary-idle">-</p>
+                        </div>
+                        <div class="mini-card">
+                            <p class="mini-label">Total Switches</p>
+                            <p class="mini-value" id="summary-switches">-</p>
+                        </div>
+                        <div class="mini-card">
+                            <p class="mini-label">Total Time</p>
+                            <p class="mini-value" id="summary-time">-</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </div>
     </main>
+
+    <div class="popup-overlay" id="result-popup">
+        <div class="popup-card">
+            <div class="result-header">
+                <p class="result-title">Latest Focus Analysis</p>
+                <button class="button secondary" id="close-popup-button" type="button">Close</button>
+            </div>
+            <p class="recommendation" id="popup-recommendation"></p>
+            <p class="result-copy" id="popup-focus"></p>
+            <p class="result-copy" id="popup-reason"></p>
+            <p class="result-copy" id="popup-llm"></p>
+        </div>
+    </div>
 
     <script>
         const form = document.getElementById("focus-form");
         const analyzeButton = document.getElementById("analyze-button");
+        const startMonitoringButton = document.getElementById("start-monitoring-button");
+        const stopMonitoringButton = document.getElementById("stop-monitoring-button");
+        const resetSessionButton = document.getElementById("reset-session-button");
+        const resultPopup = document.getElementById("result-popup");
+        const closePopupButton = document.getElementById("close-popup-button");
+        const popupRecommendation = document.getElementById("popup-recommendation");
+        const popupFocus = document.getElementById("popup-focus");
+        const popupReason = document.getElementById("popup-reason");
+        const popupLlm = document.getElementById("popup-llm");
         const statusMessage = document.getElementById("status-message");
         const resultCard = document.getElementById("result-card");
         const focusBadge = document.getElementById("focus-badge");
@@ -504,6 +1037,13 @@
         const summaryIdle = document.getElementById("summary-idle");
         const summarySwitches = document.getElementById("summary-switches");
         const summaryTime = document.getElementById("summary-time");
+        const focusMeter = document.getElementById("focus-meter");
+        const historyGrid = document.getElementById("history-grid");
+        const telemetryCanvas = document.getElementById("telemetry-canvas");
+        const telemetryContext = telemetryCanvas.getContext("2d");
+        const heroMode = document.getElementById("hero-mode");
+        const heroConfidence = document.getElementById("hero-confidence");
+        const heroTrend = document.getElementById("hero-trend");
         const trackedTime = document.getElementById("tracked-time");
         const trackedIdle = document.getElementById("tracked-idle");
         const trackedSwitches = document.getElementById("tracked-switches");
@@ -511,10 +1051,11 @@
         const useLiveData = document.getElementById("use-live-data");
         const monitorStatus = document.getElementById("monitor-status");
 
-        const analysisIntervalMs = 45000;
+        const minAnalysisIntervalMs = 5 * 60 * 1000;
+        const maxAnalysisIntervalMs = 10 * 60 * 1000;
         const idleThresholdMs = 5000;
         const switchThresholdMs = 5000;
-        const sessionStartMs = Date.now();
+        let sessionStartMs = null;
 
         let lastActivityMs = Date.now();
         let idleStartedMs = null;
@@ -524,12 +1065,29 @@
         let isAway = false;
         let lastAnalyzedAtMs = null;
         let autoRequestInFlight = false;
+        let autoAnalysisTimeoutId = null;
+        let frozenMetrics = null;
+        let currentFocusLevel = "Medium";
+        const telemetryHistory = [];
+        let monitoringStarted = false;
+        const API_ENDPOINTS = [
+            "http://127.0.0.1:5001/decision",
+            "http://127.0.0.1:5000/decision"
+        ];
 
         function roundMinutes(milliseconds) {
             return Math.round((milliseconds / 60000) * 10) / 10;
         }
 
         function getTrackedMetrics() {
+            if (!monitoringStarted || sessionStartMs === null) {
+                return {
+                    time_spent: 0,
+                    task_switch_count: taskSwitchCount,
+                    idle_time: 0
+                };
+            }
+
             const now = Date.now();
             const liveIdleMs = idleStartedMs ? now - idleStartedMs : 0;
 
@@ -540,8 +1098,12 @@
             };
         }
 
+        function getDisplayMetrics() {
+            return useLiveData.checked ? getTrackedMetrics() : (frozenMetrics || getTrackedMetrics());
+        }
+
         function syncTrackedDisplay() {
-            const metrics = getTrackedMetrics();
+            const metrics = getDisplayMetrics();
             trackedTime.textContent = `${metrics.time_spent} min`;
             trackedIdle.textContent = `${metrics.idle_time} min`;
             trackedSwitches.textContent = String(metrics.task_switch_count);
@@ -570,6 +1132,10 @@
         }
 
         function registerActivity() {
+            if (!monitoringStarted) {
+                return;
+            }
+
             const now = Date.now();
 
             if (idleStartedMs) {
@@ -578,10 +1144,17 @@
             }
 
             lastActivityMs = now;
-            syncTrackedDisplay();
+
+            if (useLiveData.checked) {
+                syncTrackedDisplay();
+            }
         }
 
         function markAway() {
+            if (!monitoringStarted) {
+                return;
+            }
+
             if (!isAway) {
                 isAway = true;
                 awayStartedMs = Date.now();
@@ -610,6 +1183,128 @@
             statusMessage.textContent = isLoading ? label : "";
         }
 
+        function renderHistory(history = []) {
+            historyGrid.innerHTML = "";
+
+            history.slice(-10).forEach((entry) => {
+                const level = String(entry.focus_level || "Medium").toLowerCase();
+                const bar = document.createElement("div");
+                const height = level === "high" ? "100%" : level === "medium" ? "66%" : "33%";
+                bar.className = `history-bar ${level}`;
+                bar.style.height = height;
+                historyGrid.appendChild(bar);
+            });
+
+            while (historyGrid.children.length < 10) {
+                const placeholder = document.createElement("div");
+                placeholder.className = "history-bar";
+                placeholder.style.height = "14px";
+                historyGrid.appendChild(placeholder);
+            }
+        }
+
+        function getFocusScore(level) {
+            if (level === "High") {
+                return 90;
+            }
+            if (level === "Low") {
+                return 30;
+            }
+            return 60;
+        }
+
+        function pushTelemetryPoint() {
+            const metrics = getDisplayMetrics();
+            telemetryHistory.push({
+                focusScore: getFocusScore(currentFocusLevel),
+                switches: metrics.task_switch_count,
+                idle: Math.min(metrics.idle_time * 10, 100)
+            });
+
+            while (telemetryHistory.length > 30) {
+                telemetryHistory.shift();
+            }
+        }
+
+        function drawTelemetryGraph() {
+            const width = telemetryCanvas.width;
+            const height = telemetryCanvas.height;
+            telemetryContext.clearRect(0, 0, width, height);
+
+            if (!telemetryHistory.length) {
+                return;
+            }
+
+            const padding = 16;
+            const graphWidth = width - padding * 2;
+            const graphHeight = height - padding * 2;
+
+            telemetryContext.strokeStyle = "rgba(255,255,255,0.08)";
+            telemetryContext.lineWidth = 1;
+            for (let i = 0; i <= 4; i += 1) {
+                const y = padding + (graphHeight / 4) * i;
+                telemetryContext.beginPath();
+                telemetryContext.moveTo(padding, y);
+                telemetryContext.lineTo(width - padding, y);
+                telemetryContext.stroke();
+            }
+
+            function drawSeries(key, color) {
+                telemetryContext.strokeStyle = color;
+                telemetryContext.lineWidth = 3;
+                telemetryContext.beginPath();
+
+                telemetryHistory.forEach((point, index) => {
+                    const x = padding + (graphWidth / Math.max(telemetryHistory.length - 1, 1)) * index;
+                    const y = padding + graphHeight - (Math.min(point[key], 100) / 100) * graphHeight;
+
+                    if (index === 0) {
+                        telemetryContext.moveTo(x, y);
+                    } else {
+                        telemetryContext.lineTo(x, y);
+                    }
+                });
+
+                telemetryContext.stroke();
+            }
+
+            drawSeries("focusScore", "#41e5ff");
+            drawSeries("switches", "#ff5fcf");
+            drawSeries("idle", "#ffd26a");
+        }
+
+        function resetDashboardView() {
+            currentFocusLevel = "Medium";
+            frozenMetrics = null;
+            telemetryHistory.length = 0;
+            resultPopup.classList.remove("active");
+            resultCard.className = "result";
+            focusBadge.className = "badge";
+            focusBadge.textContent = "-";
+            recommendationText.className = "recommendation";
+            recommendationText.textContent = "";
+            reasonText.textContent = "";
+            llmText.textContent = "";
+            confidenceText.textContent = "";
+            confidenceNoteText.textContent = "";
+            trendText.textContent = "";
+            sessionInsightText.textContent = "";
+            summaryScore.textContent = "-";
+            summaryIdle.textContent = "-";
+            summarySwitches.textContent = "-";
+            summaryTime.textContent = "-";
+            heroConfidence.textContent = "--%";
+            heroTrend.textContent = "STABLE";
+            focusMeter.style.width = "0%";
+            lastAnalyzedAtMs = null;
+            trackedTime.textContent = "0 min";
+            trackedIdle.textContent = "0 min";
+            trackedSwitches.textContent = "0";
+            updateLastAnalyzed();
+            renderHistory([]);
+            drawTelemetryGraph();
+        }
+
         function showError(message) {
             resultCard.className = "result active";
             focusBadge.className = "badge";
@@ -626,11 +1321,28 @@
             summaryIdle.textContent = "-";
             summarySwitches.textContent = "-";
             summaryTime.textContent = "-";
+            heroConfidence.textContent = "--%";
+            heroTrend.textContent = "ERROR";
+            focusMeter.style.width = "0%";
+            renderHistory([]);
+            currentFocusLevel = "Low";
+            pushTelemetryPoint();
+            drawTelemetryGraph();
+        }
+
+        function openResultPopup(data) {
+            popupRecommendation.className = `recommendation ${String(data.focus_level || "Medium").toLowerCase()}`;
+            popupRecommendation.textContent = data.recommendation || "No recommendation";
+            popupFocus.innerHTML = `<strong>Focus Level:</strong> ${data.focus_level || "-"}`;
+            popupReason.innerHTML = `<strong>Reason:</strong> ${data.reason || "No explanation available."}`;
+            popupLlm.innerHTML = `<strong>AI Suggestion:</strong> ${data.llm_suggestion || "Suggestion unavailable"}`;
+            resultPopup.classList.add("active");
         }
 
         function showResult(data) {
             const focusLevel = data.focus_level;
             const focusClass = focusLevel.toLowerCase();
+            currentFocusLevel = focusLevel;
 
             resultCard.className = "result active";
             focusBadge.className = `badge ${focusClass}`;
@@ -649,8 +1361,15 @@
             summaryIdle.textContent = data.session_summary ? `${data.session_summary.total_idle} min` : "-";
             summarySwitches.textContent = data.session_summary?.total_switches ?? "-";
             summaryTime.textContent = trackedTime.textContent;
+            heroConfidence.textContent = `${Math.round((data.confidence ?? 0) * 100)}%`;
+            heroTrend.textContent = (data.trend || "Stable").toUpperCase();
+            focusMeter.style.width = focusLevel === "High" ? "100%" : focusLevel === "Medium" ? "66%" : "33%";
+            renderHistory(data.recent_patterns || []);
+            pushTelemetryPoint();
+            drawTelemetryGraph();
             lastAnalyzedAtMs = Date.now();
             updateLastAnalyzed();
+            openResultPopup(data);
         }
 
         async function sendAnalysis(payload, { automatic = false } = {}) {
@@ -668,20 +1387,31 @@
             );
 
             try {
-                const response = await fetch("http://127.0.0.1:5001/decision", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(payload)
-                });
+                let lastError = null;
 
-                const result = await response.json();
-                if (!response.ok || !result.success) {
-                    throw new Error(result.error || "Unable to analyze focus right now.");
+                for (const endpoint of API_ENDPOINTS) {
+                    try {
+                        const response = await fetch(endpoint, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const result = await response.json();
+                        if (!response.ok || !result.success) {
+                            throw new Error(result.error || "Unable to analyze focus right now.");
+                        }
+
+                        showResult(result.data);
+                        return;
+                    } catch (error) {
+                        lastError = error;
+                    }
                 }
 
-                showResult(result.data);
+                throw lastError || new Error("Unable to connect to the analysis server.");
             } catch (error) {
                 showError(error.message || "Something went wrong while contacting the server.");
             } finally {
@@ -689,6 +1419,29 @@
                 monitorStatus.textContent = useLiveData.checked ? "Monitoring Active" : "Manual Mode";
                 autoRequestInFlight = false;
             }
+        }
+
+        function clearAutoAnalysisSchedule() {
+            if (autoAnalysisTimeoutId !== null) {
+                window.clearTimeout(autoAnalysisTimeoutId);
+                autoAnalysisTimeoutId = null;
+            }
+        }
+
+        function scheduleAutoAnalysis() {
+            clearAutoAnalysisSchedule();
+
+            const delay = Math.floor(
+                Math.random() * (maxAnalysisIntervalMs - minAnalysisIntervalMs + 1)
+            ) + minAnalysisIntervalMs;
+
+            autoAnalysisTimeoutId = window.setTimeout(async () => {
+                if (monitoringStarted && useLiveData.checked) {
+                    await sendAnalysis(buildPayload(), { automatic: true });
+                }
+
+                scheduleAutoAnalysis();
+            }, delay);
         }
 
         function buildPayload() {
@@ -707,12 +1460,86 @@
             await sendAnalysis(buildPayload());
         });
 
+        startMonitoringButton.addEventListener("click", () => {
+            monitoringStarted = true;
+            sessionStartMs = Date.now();
+            lastActivityMs = Date.now();
+            idleStartedMs = null;
+            accumulatedIdleMs = 0;
+            taskSwitchCount = 0;
+            frozenMetrics = null;
+            monitorStatus.textContent = useLiveData.checked ? "Monitoring Active" : "Manual Mode";
+            heroMode.textContent = useLiveData.checked ? "AUTO" : "MANUAL";
+            startMonitoringButton.disabled = true;
+            stopMonitoringButton.disabled = false;
+            startMonitoringButton.textContent = "Monitoring Started";
+            syncTrackedDisplay();
+            scheduleAutoAnalysis();
+        });
+
+        stopMonitoringButton.addEventListener("click", () => {
+            monitoringStarted = false;
+            clearAutoAnalysisSchedule();
+            frozenMetrics = getTrackedMetrics();
+            idleStartedMs = null;
+            isAway = false;
+            awayStartedMs = null;
+            monitorStatus.textContent = "Monitoring Stopped";
+            heroMode.textContent = "PAUSED";
+            startMonitoringButton.disabled = false;
+            stopMonitoringButton.disabled = true;
+            startMonitoringButton.textContent = "Start Monitoring";
+            syncTrackedDisplay();
+        });
+
+        resetSessionButton.addEventListener("click", () => {
+            monitoringStarted = false;
+            sessionStartMs = null;
+            lastActivityMs = Date.now();
+            idleStartedMs = null;
+            accumulatedIdleMs = 0;
+            taskSwitchCount = 0;
+            awayStartedMs = null;
+            isAway = false;
+            autoRequestInFlight = false;
+            clearAutoAnalysisSchedule();
+            monitorStatus.textContent = "Awaiting Start";
+            heroMode.textContent = useLiveData.checked ? "AUTO" : "MANUAL";
+            startMonitoringButton.disabled = false;
+            stopMonitoringButton.disabled = true;
+            startMonitoringButton.textContent = "Start Monitoring";
+            document.getElementById("time_spent").value = "";
+            document.getElementById("task_switch_count").value = "";
+            document.getElementById("idle_time").value = "";
+            resetDashboardView();
+        });
+
+        closePopupButton.addEventListener("click", () => {
+            resultPopup.classList.remove("active");
+        });
+
+        resultPopup.addEventListener("click", (event) => {
+            if (event.target === resultPopup) {
+                resultPopup.classList.remove("active");
+            }
+        });
+
         useLiveData.addEventListener("change", () => {
             const isLiveMode = useLiveData.checked;
-            monitorStatus.textContent = isLiveMode ? "Monitoring Active" : "Manual Mode";
+            monitorStatus.textContent = monitoringStarted
+                ? (isLiveMode ? "Monitoring Active" : "Manual Mode")
+                : "Awaiting Start";
+            heroMode.textContent = isLiveMode ? "AUTO" : "MANUAL";
             document.getElementById("time_spent").readOnly = isLiveMode;
             document.getElementById("task_switch_count").readOnly = isLiveMode;
             document.getElementById("idle_time").readOnly = isLiveMode;
+
+             if (isLiveMode) {
+                frozenMetrics = null;
+            } else {
+                frozenMetrics = getTrackedMetrics();
+            }
+
             syncTrackedDisplay();
         });
 
@@ -732,22 +1559,20 @@
         window.addEventListener("focus", markReturn);
 
         window.setInterval(() => {
-            beginIdleIfNeeded();
-            syncTrackedDisplay();
+            if (monitoringStarted && useLiveData.checked) {
+                beginIdleIfNeeded();
+                syncTrackedDisplay();
+            }
+            pushTelemetryPoint();
+            drawTelemetryGraph();
             updateLastAnalyzed();
         }, 1000);
 
-        window.setInterval(() => {
-            if (!useLiveData.checked) {
-                return;
-            }
-
-            sendAnalysis(buildPayload(), { automatic: true });
-        }, analysisIntervalMs);
-
         useLiveData.dispatchEvent(new Event("change"));
-        syncTrackedDisplay();
-        updateLastAnalyzed();
+        monitorStatus.textContent = "Awaiting Start";
+        heroMode.textContent = useLiveData.checked ? "AUTO" : "MANUAL";
+        stopMonitoringButton.disabled = true;
+        resetDashboardView();
     </script>
 </body>
 </html>
