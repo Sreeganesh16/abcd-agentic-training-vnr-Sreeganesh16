@@ -222,12 +222,3 @@ We kept the architecture modular and explainable: ML prediction, rule correction
 - multi-agent planning and execution architecture
 - mobile or cloud deployment
 
-## ABCD Repo Submission Checklist
-Add all the following links to your ABCD repo:
-
-- project repo link
-- README link
-- architecture diagram section link
-- screenshots link
-- recording link
-- hosted link if deployed
