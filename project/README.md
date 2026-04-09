@@ -1,4 +1,4 @@
-# Context-Aware Task Switching Agent
+<img width="1741" height="861" alt="image" src="https://github.com/user-attachments/assets/c55989ff-b3ab-4bb0-8095-7b4575b1c21c" /># Context-Aware Task Switching Agent
 
 ## 1. Business Problem
 Knowledge workers and students often lose productivity because they switch tasks too frequently, stay idle for long periods, or continue working even when mental fatigue is increasing. Most task tools only track lists and deadlines, but they do not understand behavioral signals in real time. This project addresses that gap by monitoring simple activity patterns and generating context-aware focus recommendations.
@@ -168,10 +168,10 @@ Add your demo recording link here:
 ## 9. Screenshots
 Add your screenshots here in the repo or link them from the ABCD repo:
 
-- Dashboard home screen: `ADD_SCREENSHOT_LINK`
-- Focus analysis popup: `ADD_SCREENSHOT_LINK`
-- Monitoring + live telemetry graph: `ADD_SCREENSHOT_LINK`
-- Trend/session summary panel: `ADD_SCREENSHOT_LINK`
+- Dashboard home screen : https://drive.google.com/file/d/1Sy2bY80oGzBjakSuwhDYNduz7O_VrVLL/view?usp=sharing
+- Focus analysis popup: https://drive.google.com/file/d/131CdULoE2fmddehg3KylMe5LaoG-nyjW/view?usp=sharing
+- Monitoring + live telemetry graph: https://drive.google.com/file/d/12l40I3SvovRA9gyAWmY16ji5rR1UdoS_/view?usp=sharing
+- Trend/session summary panel: https://drive.google.com/file/d/1qsQsoVceoYLUEjXpzslBc7XMKt-3WccR/view?usp=sharing
 
 ## 10. Formatting And Alignment Notes
 This README is structured to match the evaluation rubric:
