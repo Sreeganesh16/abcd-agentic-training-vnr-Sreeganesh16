@@ -1,3 +1,7 @@
 .env
 .env.*
 !.env.example
+project/__pycache__/
+project/backend/__pycache__/
+project/*.out
+project/*.err

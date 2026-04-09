@@ -1,7 +1,7 @@
 import json
 import os
 
-from tools import analyze_focus, explain_behavior, get_recommendation
+from .tools import analyze_focus, explain_behavior, get_recommendation
 
 try:
     from openai import OpenAI

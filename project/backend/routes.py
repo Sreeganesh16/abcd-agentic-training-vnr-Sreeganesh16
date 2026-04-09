@@ -1,11 +1,11 @@
 from flask import Blueprint, request
 
-from analytics import analyze_trend, get_session_summary, update_history, update_session
-from agent import get_switch_decision
-from llm_agent import generate_agent_response
-from memory import get_recent_interactions, remember_interaction
-from tools import analyze_focus
-from utils import bad_request, success_response, validate_prediction_input
+from .analytics import analyze_trend, get_session_summary, update_history, update_session
+from .agent import get_switch_decision
+from .llm_agent import generate_agent_response
+from .memory import get_recent_interactions, remember_interaction
+from .tools import analyze_focus
+from .utils import bad_request, success_response, validate_prediction_input
 
 ENABLE_MEMORY = True
 ENABLE_CONFIDENCE_NOTE = True

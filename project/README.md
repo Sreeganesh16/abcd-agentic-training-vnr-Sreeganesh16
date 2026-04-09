@@ -53,6 +53,30 @@ The application supports:
 - python-dotenv
 - Pickle (`model.pkl`)
 
+## Project Structure
+
+```text
+project/
+├── app.py
+├── .env.example
+├── README.md
+├── backend/
+│   ├── __init__.py
+│   ├── agent.py
+│   ├── analytics.py
+│   ├── llm_agent.py
+│   ├── memory.py
+│   ├── ml_model.py
+│   ├── model.pkl
+│   ├── routes.py
+│   ├── tools.py
+│   └── utils.py
+├── frontend/
+│   └── index.html
+└── docs/
+    └── ARCHITECTURE.md
+```
+
 ## 5. Architecture Diagram
 
 ```mermaid
@@ -120,7 +144,7 @@ python -c "from app import app; app.run(debug=False, port=5001)"
 ```
 
 ### Open the frontend
-Open `index.html` in the browser.
+Open `frontend/index.html` in the browser.
 
 ### Use the application
 - Click `Start Monitoring`

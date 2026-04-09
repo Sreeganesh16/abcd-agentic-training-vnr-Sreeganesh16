@@ -1,5 +1,5 @@
-from agent import RECOMMENDATION_MAP, build_reason
-from ml_model import predict_focus_with_confidence
+from .agent import RECOMMENDATION_MAP, build_reason
+from .ml_model import predict_focus_with_confidence
 
 
 def analyze_focus(context):
