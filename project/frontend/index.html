@@ -164,6 +164,19 @@
         .mini-value {
             margin: 6px 0 0;
             font-weight: 600;
+            transition: color 0.25s ease, opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .mini-value.state-active {
+            color: var(--success);
+        }
+
+        .mini-value.state-passive {
+            color: var(--warning);
+        }
+
+        .mini-value.state-idle {
+            color: var(--danger);
         }
 
         .toggle-row {
@@ -188,6 +201,17 @@
         .field {
             display: grid;
             gap: 8px;
+        }
+
+        .field-hint {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            line-height: 1.5;
+        }
+
+        .difficulty-flash {
+            border-color: var(--warning);
+            box-shadow: 0 0 0 3px rgba(255, 210, 106, 0.18);
         }
 
         label {
@@ -892,6 +916,25 @@
                             </div>
                         </div>
 
+                        <div class="mini-grid">
+                            <div class="mini-card">
+                                <p class="mini-label">Activity State</p>
+                                <p class="mini-value" id="activity-state">ACTIVE</p>
+                            </div>
+                            <div class="mini-card">
+                                <p class="mini-label">Idle Seconds</p>
+                                <p class="mini-value" id="idle-seconds">0s</p>
+                            </div>
+                            <div class="mini-card">
+                                <p class="mini-label">Focus Streak</p>
+                                <p class="mini-value" id="focus-streak">0 min</p>
+                            </div>
+                            <div class="mini-card">
+                                <p class="mini-label">Passive Time</p>
+                                <p class="mini-value" id="passive-time">0 min</p>
+                            </div>
+                        </div>
+
                         <label class="toggle-row" for="use-live-data">
                             <input id="use-live-data" type="checkbox" checked>
                             Use live monitoring data for automatic and manual analysis
@@ -927,12 +970,13 @@
                             </div>
 
                             <div class="field">
-                                <label for="task_difficulty">Task Difficulty</label>
+                                <label for="task_difficulty">Task Difficulty (Manual Input)</label>
                                 <select id="task_difficulty" name="task_difficulty" required>
                                     <option value="1">1 - Easy</option>
                                     <option value="2" selected>2 - Medium</option>
                                     <option value="3">3 - Hard</option>
                                 </select>
+                                <span class="field-hint">Can be adjusted anytime during monitoring.</span>
                             </div>
 
                             <button class="button" id="analyze-button" type="submit">Analyze Focus</button>
@@ -1050,16 +1094,28 @@
         const lastAnalyzed = document.getElementById("last-analyzed");
         const useLiveData = document.getElementById("use-live-data");
         const monitorStatus = document.getElementById("monitor-status");
+        const taskDifficultyInput = document.getElementById("task_difficulty");
+        const activityStateValue = document.getElementById("activity-state");
+        const idleSecondsValue = document.getElementById("idle-seconds");
+        const focusStreakValue = document.getElementById("focus-streak");
+        const passiveTimeValue = document.getElementById("passive-time");
 
         const minAnalysisIntervalMs = 5 * 60 * 1000;
         const maxAnalysisIntervalMs = 10 * 60 * 1000;
-        const idleThresholdMs = 5000;
         const switchThresholdMs = 5000;
+        const activeWindowSeconds = 60;
+        const passiveWindowSeconds = 300;
         let sessionStartMs = null;
 
-        let lastActivityMs = Date.now();
-        let idleStartedMs = null;
-        let accumulatedIdleMs = 0;
+        let lastActivityTime = Date.now();
+        let lastResetTime = 0;
+        let lastStateUpdateMs = Date.now();
+        let activeAccumulatedMs = 0;
+        let passiveAccumulatedMs = 0;
+        let trueIdleAccumulatedMs = 0;
+        let currentActivityState = "ACTIVE";
+        let activityState = "ACTIVE";
+        let displayedIdleSeconds = 0;
         let taskSwitchCount = 0;
         let awayStartedMs = null;
         let isAway = false;
@@ -1074,6 +1130,7 @@
             "http://127.0.0.1:5001/decision",
             "http://127.0.0.1:5000/decision"
         ];
+        const manualInputIds = ["time_spent", "task_switch_count", "idle_time"];
 
         function roundMinutes(milliseconds) {
             return Math.round((milliseconds / 60000) * 10) / 10;
@@ -1084,17 +1141,31 @@
                 return {
                     time_spent: 0,
                     task_switch_count: taskSwitchCount,
-                    idle_time: 0
+                    active_time: 0,
+                    passive_time: 0,
+                    true_idle_time: 0,
+                    idle_time: 0,
+                    focus_streak: 0,
+                    idle_seconds: 0,
+                    activity_state: "ACTIVE"
                 };
             }
 
             const now = Date.now();
-            const liveIdleMs = idleStartedMs ? now - idleStartedMs : 0;
+            syncActivityDurations(now);
+            const timeSpent = Math.max(0, roundMinutes(now - sessionStartMs));
+            const trueIdleTime = Math.max(0, roundMinutes(trueIdleAccumulatedMs));
 
             return {
-                time_spent: Math.max(0, roundMinutes(now - sessionStartMs)),
+                time_spent: timeSpent,
                 task_switch_count: taskSwitchCount,
-                idle_time: Math.max(0, roundMinutes(accumulatedIdleMs + liveIdleMs))
+                active_time: Math.max(0, roundMinutes(activeAccumulatedMs)),
+                passive_time: Math.max(0, roundMinutes(passiveAccumulatedMs)),
+                true_idle_time: trueIdleTime,
+                idle_time: trueIdleTime,
+                focus_streak: Math.max(0, Math.round((timeSpent - trueIdleTime) * 10) / 10),
+                idle_seconds: Math.max(0, Math.floor((now - lastActivityTime) / 1000)),
+                activity_state: getActivityState(now)
             };
         }
 
@@ -1107,6 +1178,11 @@
             trackedTime.textContent = `${metrics.time_spent} min`;
             trackedIdle.textContent = `${metrics.idle_time} min`;
             trackedSwitches.textContent = String(metrics.task_switch_count);
+            activityStateValue.textContent = activityState;
+            activityStateValue.className = `mini-value state-${activityState.toLowerCase()}`;
+            idleSecondsValue.textContent = `${displayedIdleSeconds}s`;
+            focusStreakValue.textContent = `${metrics.focus_streak} min`;
+            passiveTimeValue.textContent = `${metrics.passive_time} min`;
 
             if (useLiveData.checked) {
                 document.getElementById("time_spent").value = metrics.time_spent;
@@ -1125,25 +1201,66 @@
             lastAnalyzed.textContent = `${secondsAgo}s ago`;
         }
 
-        function beginIdleIfNeeded() {
-            if (!idleStartedMs && Date.now() - lastActivityMs >= idleThresholdMs) {
-                idleStartedMs = lastActivityMs + idleThresholdMs;
+        function getActivityState(now = Date.now()) {
+            const idleSeconds = (now - lastActivityTime) / 1000;
+
+            if (idleSeconds < activeWindowSeconds) {
+                return "ACTIVE";
+            }
+
+            if (idleSeconds < passiveWindowSeconds) {
+                return "PASSIVE";
+            }
+
+            return "IDLE";
+        }
+
+        function updateActivityStateDisplay(now = Date.now()) {
+            const realIdleSeconds = Math.max(0, Math.floor((now - lastActivityTime) / 1000));
+            activityState = getActivityState(now);
+
+            // Smooth the visible idle timer so it doesn't snap to zero on every tiny interaction.
+            if (realIdleSeconds > displayedIdleSeconds) {
+                displayedIdleSeconds += 1;
+            } else if (realIdleSeconds < displayedIdleSeconds) {
+                displayedIdleSeconds = Math.max(realIdleSeconds, displayedIdleSeconds - 2);
             }
         }
 
-        function registerActivity() {
+        function syncActivityDurations(now = Date.now()) {
+            if (!monitoringStarted || sessionStartMs === null) {
+                lastStateUpdateMs = now;
+                return;
+            }
+
+            const elapsedMs = Math.max(0, now - lastStateUpdateMs);
+            const state = getActivityState(now);
+
+            if (state === "ACTIVE") {
+                activeAccumulatedMs += elapsedMs;
+            } else if (state === "PASSIVE") {
+                passiveAccumulatedMs += elapsedMs;
+            } else {
+                trueIdleAccumulatedMs += elapsedMs;
+            }
+
+            currentActivityState = state;
+            lastStateUpdateMs = now;
+        }
+
+        function updateActivity() {
             if (!monitoringStarted) {
                 return;
             }
 
             const now = Date.now();
-
-            if (idleStartedMs) {
-                accumulatedIdleMs += now - idleStartedMs;
-                idleStartedMs = null;
+            syncActivityDurations(now);
+            if (now - lastResetTime > 2000) {
+                lastActivityTime = now;
+                lastResetTime = now;
             }
-
-            lastActivityMs = now;
+            currentActivityState = "ACTIVE";
+            activityState = "ACTIVE";
 
             if (useLiveData.checked) {
                 syncTrackedDisplay();
@@ -1173,7 +1290,7 @@
 
             isAway = false;
             awayStartedMs = null;
-            registerActivity();
+            updateActivity();
         }
 
         function setLoadingState(isLoading, label = "Running focus analysis...") {
@@ -1300,6 +1417,11 @@
             trackedTime.textContent = "0 min";
             trackedIdle.textContent = "0 min";
             trackedSwitches.textContent = "0";
+            activityStateValue.textContent = "ACTIVE";
+            activityStateValue.className = "mini-value state-active";
+            idleSecondsValue.textContent = "0s";
+            focusStreakValue.textContent = "0 min";
+            passiveTimeValue.textContent = "0 min";
             updateLastAnalyzed();
             renderHistory([]);
             drawTelemetryGraph();
@@ -1428,6 +1550,15 @@
             }
         }
 
+        function switchToManualMode() {
+            if (!useLiveData.checked) {
+                return;
+            }
+
+            useLiveData.checked = false;
+            useLiveData.dispatchEvent(new Event("change"));
+        }
+
         function scheduleAutoAnalysis() {
             clearAutoAnalysisSchedule();
 
@@ -1446,12 +1577,18 @@
 
         function buildPayload() {
             const trackedMetrics = getTrackedMetrics();
+            const taskDifficulty = Number(taskDifficultyInput.value);
 
+            // Auto mode only owns behavioral signals; difficulty always comes from the user's current selection.
             return {
                 time_spent: useLiveData.checked ? trackedMetrics.time_spent : Number(document.getElementById("time_spent").value),
                 task_switch_count: useLiveData.checked ? trackedMetrics.task_switch_count : Number(document.getElementById("task_switch_count").value),
-                idle_time: useLiveData.checked ? trackedMetrics.idle_time : Number(document.getElementById("idle_time").value),
-                task_difficulty: Number(document.getElementById("task_difficulty").value)
+                active_time: trackedMetrics.active_time,
+                passive_time: trackedMetrics.passive_time,
+                true_idle_time: trackedMetrics.true_idle_time,
+                focus_streak: trackedMetrics.focus_streak,
+                idle_time: useLiveData.checked ? trackedMetrics.true_idle_time : Number(document.getElementById("idle_time").value),
+                task_difficulty: taskDifficulty
             };
         }
 
@@ -1463,9 +1600,15 @@
         startMonitoringButton.addEventListener("click", () => {
             monitoringStarted = true;
             sessionStartMs = Date.now();
-            lastActivityMs = Date.now();
-            idleStartedMs = null;
-            accumulatedIdleMs = 0;
+            lastActivityTime = Date.now();
+            lastResetTime = lastActivityTime;
+            lastStateUpdateMs = sessionStartMs;
+            activeAccumulatedMs = 0;
+            passiveAccumulatedMs = 0;
+            trueIdleAccumulatedMs = 0;
+            currentActivityState = "ACTIVE";
+            activityState = "ACTIVE";
+            displayedIdleSeconds = 0;
             taskSwitchCount = 0;
             frozenMetrics = null;
             monitorStatus.textContent = useLiveData.checked ? "Monitoring Active" : "Manual Mode";
@@ -1478,10 +1621,9 @@
         });
 
         stopMonitoringButton.addEventListener("click", () => {
+            frozenMetrics = getTrackedMetrics();
             monitoringStarted = false;
             clearAutoAnalysisSchedule();
-            frozenMetrics = getTrackedMetrics();
-            idleStartedMs = null;
             isAway = false;
             awayStartedMs = null;
             monitorStatus.textContent = "Monitoring Stopped";
@@ -1495,9 +1637,15 @@
         resetSessionButton.addEventListener("click", () => {
             monitoringStarted = false;
             sessionStartMs = null;
-            lastActivityMs = Date.now();
-            idleStartedMs = null;
-            accumulatedIdleMs = 0;
+            lastActivityTime = Date.now();
+            lastResetTime = 0;
+            lastStateUpdateMs = Date.now();
+            activeAccumulatedMs = 0;
+            passiveAccumulatedMs = 0;
+            trueIdleAccumulatedMs = 0;
+            currentActivityState = "ACTIVE";
+            activityState = "ACTIVE";
+            displayedIdleSeconds = 0;
             taskSwitchCount = 0;
             awayStartedMs = null;
             isAway = false;
@@ -1543,8 +1691,21 @@
             syncTrackedDisplay();
         });
 
-        ["mousemove", "keydown", "mousedown", "touchstart"].forEach((eventName) => {
-            window.addEventListener(eventName, registerActivity, { passive: true });
+        manualInputIds.forEach((inputId) => {
+            const input = document.getElementById(inputId);
+
+            ["focus", "click", "input"].forEach((eventName) => {
+                input.addEventListener(eventName, switchToManualMode);
+            });
+        });
+
+        taskDifficultyInput.addEventListener("change", () => {
+            taskDifficultyInput.classList.add("difficulty-flash");
+            window.setTimeout(() => taskDifficultyInput.classList.remove("difficulty-flash"), 700);
+        });
+
+        ["mousemove", "keydown", "input", "click", "scroll", "touchstart"].forEach((eventName) => {
+            window.addEventListener(eventName, updateActivity, { passive: true });
         });
 
         document.addEventListener("visibilitychange", () => {
@@ -1559,8 +1720,8 @@
         window.addEventListener("focus", markReturn);
 
         window.setInterval(() => {
+            updateActivityStateDisplay();
             if (monitoringStarted && useLiveData.checked) {
-                beginIdleIfNeeded();
                 syncTrackedDisplay();
             }
             pushTelemetryPoint();
