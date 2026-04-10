@@ -153,6 +153,103 @@ Open `frontend/index.html` in the browser.
 - Click `Analyze Focus` or wait for auto-analysis
 - View focus level, recommendation, reason, trend, confidence, and session insight
 
+## Demo Guide: Testing Focus Levels
+
+For a quick demo, use manual mode so the output is easy to control and explain.
+
+### Step 1: Start the project
+Run the backend:
+
+```bash
+python -c "from app import app; app.run(debug=False, port=5001)"
+```
+
+Then open:
+
+```text
+frontend/index.html
+```
+
+### Step 2: Use manual input
+Uncheck:
+
+```text
+Use live monitoring data for automatic and manual analysis
+```
+
+This allows you to enter fixed values for demo scenarios.
+
+### Step 3: Low focus scenario
+Use these values:
+
+| Field | Value |
+|---|---:|
+| Time Spent | 120 |
+| Task Switch Count | 8 |
+| Idle Time | 22 |
+| Task Difficulty | 3 - Hard |
+
+Expected result:
+
+```text
+Focus Level: Low
+Recommendation: Switch Task / Take a Break and Reset
+```
+
+Explanation:
+High time spent, high task switching, and high idle time indicate distraction or fatigue.
+
+### Step 4: Medium focus scenario
+Use these values:
+
+| Field | Value |
+|---|---:|
+| Time Spent | 55 |
+| Task Switch Count | 3 |
+| Idle Time | 9 |
+| Task Difficulty | 2 - Medium |
+
+Expected result:
+
+```text
+Focus Level: Medium
+Recommendation: Take a Break
+```
+
+Explanation:
+Moderate switching and moderate idle time suggest the user is partially focused but may need a short reset.
+
+### Step 5: High focus scenario
+Use these values:
+
+| Field | Value |
+|---|---:|
+| Time Spent | 60 |
+| Task Switch Count | 1 |
+| Idle Time | 2 |
+| Task Difficulty | 2 - Medium |
+
+Expected result:
+
+```text
+Focus Level: High
+Recommendation: Continue Task
+```
+
+Explanation:
+Low idle time, low switching, and a healthy time range indicate strong focus.
+
+### Step 6: What to show during the demo
+After clicking `Analyze Focus`, explain these output fields:
+
+- `Focus Level`: predicted focus state
+- `Recommendation`: action suggested by the agent
+- `Reason`: rule-based explanation
+- `Confidence`: model confidence percentage
+- `AI Suggestion`: OpenAI-generated coaching message
+- `Trend`: recent focus direction
+- `Session Summary`: average focus score, idle time, and switches
+
 ## 7. References And Resources Used
 - [Flask Documentation](https://flask.palletsprojects.com/)
 - [Flask-CORS Documentation](https://flask-cors.readthedocs.io/)
